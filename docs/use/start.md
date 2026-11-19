@@ -18,6 +18,8 @@
 
 <img height="16" src="../../src/renderer/assets/icons/ding.svg"><a href="ding.md" target="_blank">固定在屏幕上</a>
 
+<img height="16" src="../../src/renderer/assets/icons/live_ding.svg"><a href="ding.md#动态贴图" target="_blank">动态贴图</a>
+
 <img height="16" src="../../src/renderer/assets/icons/record.svg"><a href="record.md" target="_blank">录屏</a>
 
 <img height="16" src="../../src/renderer/assets/icons/long_clip.svg"><a href="long_clip.md" target="_blank">广截屏</a>

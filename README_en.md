@@ -23,7 +23,7 @@ The main purpose is to implement a **screen search** function similar to [Smarti
 
 After several iterations, eSearch's functionality has become more and more enriched.
 
-Including **screenshot+OCR+search+translation+pasting+reverse image search+screen recording**.
+Including **screenshot+OCR+search+translation+pasting+reverse image search+screen recording+advanced image editing**.
 
 ![Screenshot interface](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/1.webp)
 
@@ -59,6 +59,8 @@ For more introduction, see [Documentation](./docs/use/start.md)
 
 Select and crop, color picker, freehand brush, geometry, mosaic, blur
 
+Shapes such as rectangles support rounded corners, and masks support feathering
+
 In addition to adjusting with arrow keys, selection also supports inputting arithmetic expressions for adjustment
 
 Supports executing operations immediately after custom selection, such as automatically performing OCR after selection
@@ -73,25 +75,35 @@ Change image resolution for export.
 
 Erase objects and repair images.
 
+Rotate, flip, and use free transform for perspective distortion.
+
 ### Screen Recording
 
 Record screen, custom size, camera
+
+Record microphone and system audio at the same time
 
 Can indicate cursor position and keyboard keystrokes
 
 Can set a virtual background
 
+Can be cropped, sped up, and exported
+
 ### Super Screen Recording
 
 Automatically zoom and focus to the mouse position for more vivid screen recording
 
-Accelerate, delete, operate every frame
+Accelerate, delete, operate every frame, with audio edited in sync with the picture
+
+Can export GIF, WebP, APNG, AVIF, MP4, WebM, and more
 
 ### Screen Overlay
 
 Scroll zooming, opacity, auto repositioning, mouse transparency
 
 Supports magnifying images without changing window size to prevent obscuring other content
+
+Live overlay pastes a window's real-time picture on the screen, visible even when the source window is covered, with pause, crop adjustment, and source switching
 
 Can set filters and transformations (such as mirroring) through CSS
 
@@ -123,6 +135,8 @@ Can call translation after OCR, supports word selection translation
 
 Supports free translation engines like Google Translate, and can also set APIs for other translation engines such as DeepL and Baidu, can use AI translations like ChatGPT, and even customize local AI translations
 
+Provides Firefox offline translation: download the model for a language pair and use it without a network
+
 Can translate with multiple engines simultaneously, choosing the best
 
 Can save translation results to local files or online to memory software like Anki
@@ -136,6 +150,14 @@ Can set timed translation, suitable for videos, games, etc.
 ### Others
 
 QR code recognition
+
+Copy images as files to paste directly into a file manager
+
+Screenshots can be saved as PNG, JPG, WebP, AVIF, SVG, and more
+
+### Wayland Support
+
+Adapted to the restrictions of Wayland, so screenshot, overlay, scrolling screenshot, and other features work on Wayland desktops.
 
 ## Show
 

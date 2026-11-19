@@ -6,6 +6,8 @@
 
 离线 OCR 完全免费，不依赖网络，但它体积较大。部分在线 OCR 可以免费体验，但它速度快，准确率高，不占体积。**eSearch**默认启用离线 OCR，可以直接使用。
 
+离线 OCR 默认使用 PP-OCRv6 small 模型，可在设置中下载 tiny、medium 或 v5 等其他版本。
+
 ## 在线 OCR
 
 **eSearch**目前支持的在线 OCR 服务是**百度 OCR**、**有道 OCR**和大模型OCR。部分使用OCR的功能可能只能使用离线OCR。

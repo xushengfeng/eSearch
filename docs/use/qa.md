@@ -4,6 +4,12 @@
 
 在[github](https://github.com/xushengfeng/eSearch/issues)提交反馈
 
+遇到错误时，可以在 设置-高级-获取日志 中获取日志，附在反馈中。
+
+## Linux 截屏
+
+Wayland 等环境截屏异常时（例如 Gnome 截屏错位），可以在 设置-高级 开启“使用 XDG Desktop Portal”。开启后多屏分数缩放可能变模糊。
+
 ## 兼容性
 
 由于 eSearch 框架使用 Electron，将不再支持 Win7、Win8
